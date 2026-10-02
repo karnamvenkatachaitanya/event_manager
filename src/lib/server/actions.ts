@@ -331,7 +331,7 @@ const admin = {
   async saveAnnouncement(c: Caller | null, p: P) {
     requireRole(c, "admin");
     const row = {
-      title: str(p.title, "Title", 150), content: str(p.content, "Content", 2000),
+      title: str(p.title, "Title", 150), content: str(p.content, "Content", 25000),
       priority: p.priority === "urgent" ? "urgent" : "normal",
       category: ["general", "schedule", "challenge", "wifi", "certificate"].includes(p.category) ? p.category : "general",
       published: p.published !== false,
@@ -354,8 +354,10 @@ const admin = {
     if (!sub) throw new ApiError(404, "Submission not found.");
     if (sub.status === "draft") throw new ApiError(409, "Drafts cannot be scored; the team has not submitted yet.");
     check(await db().from("submissions").update({
-      score_innovation: int(p.innovation, "Innovation", 0, 25), score_ai_prompting: int(p.ai_prompting, "AI prompting", 0, 25),
-      score_tech_execution: int(p.tech_execution, "Technical execution", 0, 25), score_presentation: int(p.presentation, "Presentation", 0, 25),
+      score_innovation: int(p.innovation, "Innovation", 0, 10),
+      score_ai_prompting: int(p.tools_tech ?? p.ai_prompting, "Tools & Tech", 0, 20),
+      score_tech_execution: int(p.ui_ux ?? p.tech_execution, "UI & UX", 0, 10),
+      score_presentation: int(p.production_ready ?? p.presentation, "Production Ready", 0, 10),
       feedback: str(p.feedback, "Feedback", 2000, false) || null, status: "evaluated", evaluated_by: me.id, updated_at: new Date().toISOString(),
     }).eq("id", sub.id));
   },

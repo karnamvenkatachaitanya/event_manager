@@ -251,25 +251,25 @@ export default function SubmissionPage() {
             <h2 id="scorecard" className="text-xl font-semibold wide text-ink">Jury Evaluation &amp; Score Card</h2>
             <div>
               <span className="display num text-4xl text-ink">{submission.scores.total}</span>
-              <span className="text-sm text-ink-2"> / 100 Points</span>
+              <span className="text-sm text-ink-2"> / 50 Points</span>
             </div>
           </div>
 
           <div className="p-4">
             <span className="cell-label block">Innovation</span>
-            <span className="font-bold text-ink num">{submission.scores.innovation} / 25</span>
+            <span className="font-bold text-ink num">{submission.scores.innovation} / 10</span>
           </div>
           <div className="p-4">
-            <span className="cell-label block">AI Prompting</span>
-            <span className="font-bold text-ink num">{submission.scores.ai_prompting} / 25</span>
+            <span className="cell-label block">Tools &amp; Tech</span>
+            <span className="font-bold text-ink num">{submission.scores.tools_tech ?? submission.scores.ai_prompting} / 20</span>
           </div>
           <div className="p-4">
-            <span className="cell-label block">Tech Execution</span>
-            <span className="font-bold text-ink num">{submission.scores.tech_execution} / 25</span>
+            <span className="cell-label block">UI &amp; UX</span>
+            <span className="font-bold text-ink num">{submission.scores.ui_ux ?? submission.scores.tech_execution} / 10</span>
           </div>
           <div className="p-4">
-            <span className="cell-label block">Presentation</span>
-            <span className="font-bold text-ink num">{submission.scores.presentation} / 25</span>
+            <span className="cell-label block">Production Ready</span>
+            <span className="font-bold text-ink num">{submission.scores.production_ready ?? submission.scores.presentation} / 10</span>
           </div>
 
           {submission.scores.feedback && (

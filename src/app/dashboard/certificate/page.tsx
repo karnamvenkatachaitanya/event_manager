@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Award, Printer, ExternalLink, Check, X } from "lucide-react";
+import { Award, Printer, ExternalLink, Check, X, Download } from "lucide-react";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useStore } from "@/lib/store";
 import { Certificate } from "@/lib/types";
 import { generateQrDataUrl } from "@/lib/qr";
+import PaytmCertificate, { printCertificate, downloadCertificatePDF } from "@/components/PaytmCertificate";
 
 const fmtIST = (iso: string) =>
   new Date(iso).toLocaleString("en-IN", {
@@ -33,6 +34,7 @@ export default function CertificatePage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [qrUrl, setQrUrl] = useState<string>("");
   const [now] = useState(() => Date.now());
+  const [downloading, setDownloading] = useState(false);
 
   const name = currentProfile?.certificate_name || currentUser?.name || "";
 
@@ -54,8 +56,17 @@ export default function CertificatePage() {
     };
   }, [certificateId]);
 
-  const handlePrint = () => {
-    window.print();
+  const handleDownloadPDF = async () => {
+    setDownloading(true);
+    try {
+      const filename = `${(certificate?.participant_name || name || "certificate").trim().replace(/\s+/g, "_")}_Paytm_Certificate.pdf`;
+      await downloadCertificatePDF(filename);
+    } catch (err) {
+      console.error("PDF generation fallback to print:", err);
+      printCertificate();
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const certType = certificate ? certLabel(certificate) : "";
@@ -99,7 +110,7 @@ export default function CertificatePage() {
   const allMet = conditions.every((c) => c.ok);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <header className="frame bg-paper px-5 py-5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
         <div>
           <h1 className="page-title text-ink">Official Certificate</h1>
@@ -109,13 +120,23 @@ export default function CertificatePage() {
         </div>
 
         {certificate && (
-        <button
-          onClick={handlePrint}
-          className="btn btn-primary self-start sm:self-auto"
-        >
-          <Printer className="w-4 h-4" aria-hidden="true" />
-          <span>Print / Download PDF</span>
-        </button>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              onClick={handleDownloadPDF}
+              disabled={downloading}
+              className="btn btn-primary flex items-center gap-1.5"
+            >
+              <Download className="w-4 h-4" aria-hidden="true" />
+              <span>{downloading ? "Generating PDF..." : "Download PDF"}</span>
+            </button>
+            <button
+              onClick={printCertificate}
+              className="btn flex items-center gap-1.5"
+            >
+              <Printer className="w-4 h-4" aria-hidden="true" />
+              <span>Print</span>
+            </button>
+          </div>
         )}
       </header>
 
@@ -136,110 +157,26 @@ export default function CertificatePage() {
       )}
 
       {certificate ? (
-        /* Printed document: intentionally light, explicit colours */
-        <article
-          aria-label={`Certificate ${certificate.certificate_id} for ${certificate.participant_name || name}`}
-          className="bg-white text-[#0d1117] border border-line p-1.5 sm:p-2 [print-color-adjust:exact] [-webkit-print-color-adjust:exact]"
-        >
-          <div className="border border-line">
-
-            {/* Navy header band */}
-            <div className="bg-navy text-white px-5 py-5 sm:px-10 sm:py-6 text-center">
-              <div className="flex items-center justify-center gap-2 mb-3" aria-hidden="true">
-                <span className="border border-white px-2 py-0.5 text-xs font-semibold tracking-wider">NBKR</span>
-                <span className="border border-white px-2 py-0.5 text-xs font-semibold tracking-wider">ISTE</span>
-                <span className="border border-white px-2 py-0.5 text-xs font-semibold tracking-wider">Paytm</span>
-              </div>
-              <p className="font-semibold wide uppercase text-base sm:text-xl leading-tight">
-                N.B.K.R. Institute of Science &amp; Technology
-              </p>
-              <p className="text-[11px] sm:text-xs uppercase tracking-widest text-[rgba(255,255,255,0.7)] font-bold mt-1.5">
-                Department of Information Technology &amp; Artificial Intelligence &amp; Data Science
-              </p>
-              <p className="text-[11px] uppercase tracking-widest text-[rgba(255,255,255,0.7)] mt-1">
-                In Association with Indian Society for Technical Education (ISTE)
-              </p>
-            </div>
-
-            {/* Body */}
-            <div className="px-5 py-8 sm:px-12 sm:py-12 text-center space-y-6">
-              <div className="space-y-2">
-                <h2 className="display uppercase text-[1.75rem] sm:text-5xl">
-                  Certificate of {certType}
-                </h2>
-                <p className="font-semibold wide uppercase tracking-wider text-navy text-base sm:text-lg">
-                  Prompt to Production
-                </p>
-                <p className="text-xs font-bold uppercase tracking-widest text-[#3a414c]">
-                  Paytm AI Workshop &amp; Build Challenge
-                </p>
-              </div>
-
-              <div className="space-y-3 max-w-2xl mx-auto text-sm sm:text-base text-[#3a414c] leading-relaxed">
-                <p>This is to certify that</p>
-                <p className="font-semibold wide text-2xl sm:text-4xl text-[#0d1117] border-b-2 border-line inline-block px-4 sm:px-8 pb-1 break-words max-w-full">
-                  {certificate.participant_name}
-                </p>
-                <p className="text-sm">
-                  Roll No: <strong className="font-mono text-[#0d1117]">{certificate.roll_number}</strong> · Branch: <strong className="text-[#0d1117]">{certificate.branch}</strong>
-                </p>
-                <p className="pt-2">
-                  has successfully participated in the full-day <strong className="text-[#0d1117]">Prompt to Production – Paytm AI Workshop</strong> conducted on <strong className="text-[#0d1117]">{eventConfig.date_formatted}</strong>, acquiring hands-on mastery in Generative AI, Prompt Engineering, and AI-assisted production software development.
-                </p>
-                {certificate.rank && (
-                  <p className="pt-1">
-                    <span className="inline-block border border-line bg-sun text-on-accent px-3 py-1 font-semibold uppercase tracking-wide text-sm">
-                      Awarded: {certificate.rank}
-                    </span>
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Signatories, ruled row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 border-t-2 border-line divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-[#0d1117]">
-              <div className="px-5 py-6 text-center flex flex-col justify-end">
-                <div className="border-t border-line pt-2 mx-auto w-44 max-w-full">
-                  <div className="font-bold text-sm">Dr. S. K. Rao</div>
-                  <div className="text-[11px] uppercase tracking-wider font-bold text-[#3a414c]">Head of Department</div>
-                  <div className="text-[11px] text-[#5b6472]">Dept of IT &amp; AI&amp;DS, NBKRIST</div>
-                </div>
-              </div>
-
-              <div className="px-5 py-5 flex flex-col items-center justify-center gap-1.5">
-                <div className="bg-white border border-[#c9ced5] p-1.5">
-                  {qrUrl ? (
-                    <img src={qrUrl} alt="Verify Certificate" className="block w-24 h-24" />
-                  ) : (
-                    <div className="w-24 h-24 flex items-center justify-center text-[10px] text-[#5b6472]">
-                      QR Verification
-                    </div>
-                  )}
-                </div>
-                <span className="text-[10px] uppercase tracking-wider font-bold text-[#5b6472]">Verification code</span>
-                <span className="font-mono text-xs font-bold">{certificate.certificate_id}</span>
-                <span className="text-[10px] text-[#5b6472]">Issued {new Date(certificate.issue_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
-                <Link
-                  href={certificate.verification_url || `/verify/${certificate.certificate_id}`}
-                  target="_blank"
-                  className="inline-flex items-center gap-1 min-h-11 text-xs font-bold text-navy underline print:hidden"
-                >
-                  Verify Authenticity
-                  <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
-                </Link>
-              </div>
-
-              <div className="px-5 py-6 text-center flex flex-col justify-end">
-                <div className="border-t border-line pt-2 mx-auto w-44 max-w-full">
-                  <div className="font-bold text-sm">Prof. K. Prasad</div>
-                  <div className="text-[11px] uppercase tracking-wider font-bold text-[#3a414c]">Faculty Advisor</div>
-                  <div className="text-[11px] text-[#5b6472]">ISTE Student Chapter</div>
-                </div>
-              </div>
-            </div>
-
+        <div className="space-y-4">
+          <PaytmCertificate
+            participantName={certificate.participant_name || name || "Student Name"}
+            dateStr="30-09-2026"
+            certificateId={certificate.certificate_id}
+          />
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-ink-2 bg-field p-3 rounded-lg border border-line print:hidden">
+            <span className="font-mono">
+              Certificate ID: <strong className="text-ink">{certificate.certificate_id}</strong>
+            </span>
+            <Link
+              href={certificate.verification_url || `/verify/${certificate.certificate_id}`}
+              target="_blank"
+              className="inline-flex items-center gap-1 font-semibold text-accent hover:underline"
+            >
+              <span>Public Verification Link</span>
+              <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
+            </Link>
           </div>
-        </article>
+        </div>
       ) : (
         <div className="frame bg-paper">
           <div className="p-8 text-center space-y-3">

@@ -168,11 +168,14 @@ export interface ProjectSubmission {
   file_url?: string;
   status: SubmissionStatus;
   scores?: {
-    innovation: number; // 0-25
-    ai_prompting: number; // 0-25
-    tech_execution: number; // 0-25
-    presentation: number; // 0-25
-    total: number; // 0-100
+    innovation: number; // 0-10
+    tools_tech?: number; // 0-20
+    ui_ux?: number; // 0-10
+    production_ready?: number; // 0-10
+    ai_prompting?: number; // legacy alias (0-20)
+    tech_execution?: number; // legacy alias (0-10)
+    presentation?: number; // legacy alias (0-10)
+    total: number; // 0-50
     feedback?: string;
   };
   submitted_at: string;

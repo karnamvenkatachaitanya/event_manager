@@ -33,10 +33,107 @@ interface TicketCardProps {
 function statusTagClass(status: string): string {
   const s = status.toLowerCase();
   if (s.includes("cancel")) return "tag-off";
-  if (s.includes("fail") || s.includes("invalid") || s.includes("duplicate")) return "tag-alert";
-  if (s.includes("pending") || s.includes("reserved")) return "tag-pending";
   if (s.includes("confirm") || s.includes("paid") || s.includes("check") || s.includes("active")) return "tag-ok";
   return "tag-info";
+}
+
+export function printTicket() {
+  if (typeof document === "undefined") return;
+
+  const ticketCard = document.getElementById("ticket-print-card");
+  if (!ticketCard) {
+    window.print();
+    return;
+  }
+
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "none";
+  iframe.style.visibility = "hidden";
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow?.document;
+  if (!doc) {
+    iframe.remove();
+    window.print();
+    return;
+  }
+
+  const headElements = Array.from(document.querySelectorAll("link[rel='stylesheet'], style"))
+    .map((el) => el.outerHTML)
+    .join("\n");
+
+  doc.open();
+  doc.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Paytm Event Ticket</title>
+  ${headElements}
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 8mm auto;
+    }
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: flex-start !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      overflow: hidden !important;
+    }
+    #ticket-print-card {
+      width: 100% !important;
+      max-width: 440px !important;
+      margin: 4mm auto !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      box-shadow: none !important;
+      border: 1px solid #111 !important;
+      border-radius: 8px !important;
+      overflow: hidden !important;
+    }
+    .print-hidden, button {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  ${ticketCard.outerHTML}
+</body>
+</html>`);
+  doc.close();
+
+  let printed = false;
+  const triggerPrint = async () => {
+    if (printed) return;
+    printed = true;
+    try {
+      if (iframe.contentWindow?.document?.fonts?.ready) {
+        await iframe.contentWindow.document.fonts.ready;
+      }
+      await new Promise((r) => setTimeout(r, 200));
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+    } catch {
+      window.print();
+    } finally {
+      setTimeout(() => {
+        iframe.remove();
+      }, 3000);
+    }
+  };
+
+  iframe.onload = triggerPrint;
+  setTimeout(triggerPrint, 600);
 }
 
 export default function TicketCard({
@@ -93,7 +190,7 @@ export default function TicketCard({
   };
 
   const handlePrintTicket = () => {
-    window.print();
+    printTicket();
   };
 
   return (
@@ -101,6 +198,7 @@ export default function TicketCard({
       {/* Gate ticket: framed planes */}
       <div
         ref={ticketRef}
+        id="ticket-print-card"
         className="frame bg-paper text-ink [print-color-adjust:exact] [-webkit-print-color-adjust:exact]"
         aria-label={`Event ticket ${registrationId}`}
         role="group"

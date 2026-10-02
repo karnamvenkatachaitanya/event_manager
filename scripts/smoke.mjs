@@ -128,19 +128,19 @@ try {
   ok((await act(TB, "joinTeam", { inviteCode: team.data.inviteCode })).status === 409, "B cannot join twice");
   ok((await act(TA, "saveSubmission", { projectName: "Smoke Project", status: "submitted" })).status === 400, "final submit without details/links is rejected");
   ok((await act(TA, "saveSubmission", { projectName: "Smoke Project", status: "draft" })).ok, "draft saves");
-  ok((await act(ADMIN, "scoreSubmission", { submissionId: (await state(ADMIN)).state.submissions.find((s) => s.team_id === team.data.teamId).id, innovation: 20, ai_prompting: 20, tech_execution: 20, presentation: 20 })).status === 409, "drafts cannot be scored");
+  ok((await act(ADMIN, "scoreSubmission", { submissionId: (await state(ADMIN)).state.submissions.find((s) => s.team_id === team.data.teamId).id, innovation: 10, tools_tech: 20, ui_ux: 10, production_ready: 10 })).status === 409, "drafts cannot be scored");
   ok((await act(TB, "saveSubmission", {
     projectName: "Smoke Project", problemStatement: "Gate queues are slow.", description: "QR check-in with AI triage.",
     technologies: ["Next.js", "Supabase"], githubUrl: "https://github.com/example/smoke", status: "submitted",
   })).ok, "B submits the final project");
   ok((await act(TC, "joinTeam", { inviteCode: team.data.inviteCode })).status === 409, "team roster is locked after submission");
   const subId = (await state(ADMIN)).state.submissions.find((s) => s.team_id === team.data.teamId).id;
-  ok((await act(ADMIN, "scoreSubmission", { submissionId: subId, innovation: 26, ai_prompting: 20, tech_execution: 20, presentation: 20 })).status === 400, "scores above 25 are rejected");
-  ok((await act(COORD, "scoreSubmission", { submissionId: subId, innovation: 20, ai_prompting: 20, tech_execution: 20, presentation: 20 })).status === 403, "coordinator cannot judge");
-  ok((await act(ADMIN, "scoreSubmission", { submissionId: subId, innovation: 25, ai_prompting: 24, tech_execution: 24, presentation: 25, feedback: "Excellent." })).ok, "admin scores the submission (98/100)");
+  ok((await act(ADMIN, "scoreSubmission", { submissionId: subId, innovation: 11, tools_tech: 20, ui_ux: 10, production_ready: 10 })).status === 400, "scores above criteria limit are rejected");
+  ok((await act(COORD, "scoreSubmission", { submissionId: subId, innovation: 10, tools_tech: 20, ui_ux: 10, production_ready: 10 })).status === 403, "coordinator cannot judge");
+  ok((await act(ADMIN, "scoreSubmission", { submissionId: subId, innovation: 9, tools_tech: 18, ui_ux: 9, production_ready: 10, feedback: "Excellent." })).ok, "admin scores the submission (46/50)");
   ok((await act(TA, "saveSubmission", { projectName: "Edit after judging", status: "draft" })).status === 409, "evaluated submission is locked");
   const board = (await state(null)).state.submissions.find((s) => s.team_id === team.data.teamId);
-  ok(board && board.scores?.total === 98 && !board.github_url && !board.scores?.feedback, "public leaderboard shows the score without links or feedback");
+  ok(board && board.scores?.total === 46 && !board.github_url && !board.scores?.feedback, "public leaderboard shows the score without links or feedback");
 
   console.log("\n6. Certificates");
   const early2 = await act(ADMIN, "issueCertificates");

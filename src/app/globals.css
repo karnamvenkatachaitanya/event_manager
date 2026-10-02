@@ -522,6 +522,124 @@ select {
 
 @media print {
   body {
-    background: #fff;
+    background: #fff !important;
+  }
+
+  /* Certificate print isolation */
+  body.printing-certificate {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body.printing-certificate * {
+    visibility: hidden !important;
+  }
+  body.printing-certificate #certificate,
+  body.printing-certificate #certificate * {
+    visibility: visible !important;
+  }
+  body.printing-certificate #certificate {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 297mm !important;
+    height: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ticket print isolation */
+  body.printing-ticket {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body.printing-ticket * {
+    visibility: hidden !important;
+  }
+  body.printing-ticket #ticket-print-card,
+  body.printing-ticket #ticket-print-card * {
+    visibility: visible !important;
+  }
+  body.printing-ticket #ticket-print-card {
+    position: absolute !important;
+    left: 50% !important;
+    top: 15mm !important;
+    transform: translateX(-50%) !important;
+    width: 100% !important;
+    max-width: 480px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: 1px solid #222 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
+
+/* Rich HTML styling for Announcement Popup Card */
+.announcement-html-content {
+  color: inherit;
+  font-family: var(--font-sans);
+}
+.announcement-html-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 0.5rem 0;
+  display: block;
+}
+.announcement-html-content h1,
+.announcement-html-content h2,
+.announcement-html-content h3,
+.announcement-html-content h4 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: inherit;
+  line-height: 1.25;
+  margin-top: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+.announcement-html-content p {
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+  line-height: 1.6;
+  color: inherit;
+}
+.announcement-html-content strong {
+  font-weight: 600;
+  color: inherit;
+}
+.announcement-html-content ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.announcement-html-content ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.announcement-html-content li {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.announcement-html-content a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+  color: inherit;
+}
+
+

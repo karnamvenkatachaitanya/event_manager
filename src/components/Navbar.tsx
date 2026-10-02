@@ -89,7 +89,7 @@ export default function Navbar() {
   const roleLabel = getRoleLabel(role);
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-paper rule-b">
+    <header className="sticky top-0 z-40 w-full bg-paper rule-b print:hidden">
       <div className={`${inConsole ? "max-w-none" : "max-w-[1280px]"} mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[4.5rem] flex items-center justify-between gap-4`}>
         {/* Brand lockup */}
         <Link href="/" className="flex items-center gap-3 min-w-0 group" aria-label="Prompt to Production, home">

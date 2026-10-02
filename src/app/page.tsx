@@ -28,6 +28,8 @@ import {
 import { useStore, isStoreReady, triggerDownload } from "@/lib/store";
 import { generateQrDataUrl } from "@/lib/qr";
 import { generateIcsContent } from "@/lib/ics";
+import { parseAnnouncementContent } from "@/lib/announcements";
+import AnnouncementPopupCard from "@/components/AnnouncementPopupCard";
 
 function LinkedInIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
@@ -66,7 +68,7 @@ function eventClock(time: string) {
 }
 
 export default function HomePage() {
-  const { eventConfig, seatsTaken } = useStore();
+  const { eventConfig, seatsTaken, announcements } = useStore();
   const storeReady = isStoreReady();
   const seatsLeft = Math.max(0, eventConfig.capacity - seatsTaken);
   const { start: startClock, end: endClock } = eventClock(eventConfig.time);
@@ -79,6 +81,57 @@ export default function HomePage() {
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [scheduleTab, setScheduleTab] = useState<ScheduleTab>("morning");
   const closeRef = useRef<HTMLButtonElement>(null);
+
+  // Announcement popup card state on home page
+  const [homePopupOpen, setHomePopupOpen] = useState(false);
+  const [pillDismissed, setPillDismissed] = useState(false);
+  const publishedAnnouncements = (announcements || [])
+    .filter((a) => a.published)
+    .sort((a, b) => {
+      if (a.priority === "urgent" && b.priority !== "urgent") return -1;
+      if (b.priority === "urgent" && a.priority !== "urgent") return 1;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
+  const popupAnnouncement =
+    publishedAnnouncements.find(
+      (a) => parseAnnouncementContent(a.content, a.priority).styling.showPopup
+    ) || null;
+
+  useEffect(() => {
+    if (!popupAnnouncement) {
+      setHomePopupOpen(false);
+      return;
+    }
+
+    // Check if the visitor explicitly clicked "Don't show again today"
+    try {
+      const todayStr = new Date().toDateString();
+      const dismissedToday = localStorage.getItem(`dismiss_today_${popupAnnouncement.id}`);
+      if (dismissedToday === todayStr) {
+        return; // Suppressed for today only
+      }
+    } catch {
+      // ignore storage access errors in private/iframe browsing
+    }
+
+    // Automatically open popup card when opening or refreshing the home page
+    const timer = setTimeout(() => {
+      setHomePopupOpen(true);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [popupAnnouncement?.id]);
+
+  const handleDontShowToday = () => {
+    if (popupAnnouncement) {
+      try {
+        localStorage.setItem(`dismiss_today_${popupAnnouncement.id}`, new Date().toDateString());
+      } catch {
+        // ignore storage access errors
+      }
+    }
+    setHomePopupOpen(false);
+  };
 
   // Live countdown state
   const [timeLeft, setTimeLeft] = useState({
@@ -1107,6 +1160,44 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Floating Announcement Trigger Button positioned safely above MobileBottomNav */}
+      {popupAnnouncement && !pillDismissed && (
+        <div className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] left-3 sm:left-5 lg:bottom-6 lg:left-6 z-30 animate-in fade-in slide-in-from-bottom-3 duration-300">
+          <div className="flex items-center gap-1.5 p-1 pl-3 pr-1.5 rounded-full shadow-[0_4px_24px_rgba(17,17,19,0.3)] bg-[#111113] text-white border border-neutral-700/80 backdrop-blur-md transition-all hover:border-neutral-500">
+            <button
+              type="button"
+              onClick={() => setHomePopupOpen(true)}
+              className="flex items-center gap-2 text-xs font-semibold hover:text-sun transition-colors text-left cursor-pointer"
+              aria-label="View event announcement popup card"
+            >
+              <span className="w-2 h-2 rounded-full bg-sun shrink-0 animate-pulse" />
+              <span className="truncate max-w-[130px] sm:max-w-[220px]">
+                📢 {popupAnnouncement.title}
+              </span>
+              <span className="bg-sun text-ink px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0">
+                View
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPillDismissed(true)}
+              className="w-5 h-5 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors shrink-0 ml-0.5 cursor-pointer"
+              aria-label="Dismiss announcement pill"
+            >
+              <X className="w-3 h-3" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Home Page Announcement Popup Card */}
+      <AnnouncementPopupCard
+        announcement={popupAnnouncement}
+        isOpen={homePopupOpen}
+        onClose={() => setHomePopupOpen(false)}
+        onDontShowToday={handleDontShowToday}
+      />
 
     </div>
   );

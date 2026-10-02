@@ -60,7 +60,7 @@ export default function LeaderboardPage() {
               </div>
               <p className="pt-3 border-t border-rule">
                 <span className="num text-3xl font-semibold text-ink">{topThree[1].scores?.total}</span>
-                <span className="num text-sm text-ink-2"> / 100</span>
+                <span className="num text-sm text-ink-2"> / 50</span>
               </p>
             </div>
 
@@ -76,7 +76,7 @@ export default function LeaderboardPage() {
               </div>
               <p className="pt-3 border-t-2 border-on-accent">
                 <span className="num text-4xl font-semibold">{topThree[0].scores?.total}</span>
-                <span className="num text-sm font-semibold"> / 100</span>
+                <span className="num text-sm font-semibold"> / 50</span>
               </p>
             </div>
 
@@ -92,7 +92,7 @@ export default function LeaderboardPage() {
               </div>
               <p className="pt-3 border-t border-rule">
                 <span className="num text-3xl font-semibold text-ink">{topThree[2].scores?.total}</span>
-                <span className="num text-sm text-ink-2"> / 100</span>
+                <span className="num text-sm text-ink-2"> / 50</span>
               </p>
             </div>
           </section>
@@ -114,11 +114,11 @@ export default function LeaderboardPage() {
                   <th>Rank</th>
                   <th>Team Name</th>
                   <th>Project Title</th>
-                  <th className="text-right">Innovation (25)</th>
-                  <th className="text-right">AI Prompting (25)</th>
-                  <th className="text-right">Execution (25)</th>
-                  <th className="text-right">Presentation (25)</th>
-                  <th className="text-right">Total Score</th>
+                  <th className="text-right">Innovation (10)</th>
+                  <th className="text-right">Tools &amp; Tech (20)</th>
+                  <th className="text-right">UI &amp; UX (10)</th>
+                  <th className="text-right">Production Ready (10)</th>
+                  <th className="text-right">Total Score (50)</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,9 +135,9 @@ export default function LeaderboardPage() {
                     <td className="font-bold text-ink whitespace-nowrap">{sub.team_name}</td>
                     <td className="text-ink-2">{sub.project_name}</td>
                     <td className="num text-right text-ink-2">{sub.scores?.innovation ?? "-"}</td>
-                    <td className="num text-right text-ink-2">{sub.scores?.ai_prompting ?? "-"}</td>
-                    <td className="num text-right text-ink-2">{sub.scores?.tech_execution ?? "-"}</td>
-                    <td className="num text-right text-ink-2">{sub.scores?.presentation ?? "-"}</td>
+                    <td className="num text-right text-ink-2">{sub.scores?.tools_tech ?? sub.scores?.ai_prompting ?? "-"}</td>
+                    <td className="num text-right text-ink-2">{sub.scores?.ui_ux ?? sub.scores?.tech_execution ?? "-"}</td>
+                    <td className="num text-right text-ink-2">{sub.scores?.production_ready ?? sub.scores?.presentation ?? "-"}</td>
                     <td className="text-right">
                       {sub.scores ? (
                         <span className="num text-base font-semibold text-accent">{sub.scores.total}</span>

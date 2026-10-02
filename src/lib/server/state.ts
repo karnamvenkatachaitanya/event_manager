@@ -116,7 +116,12 @@ function mapSubmission(s: Row, teamName: string, includeFeedback: boolean): Proj
     status: s.status, submitted_at: s.submitted_at,
     scores: scored
       ? {
-          innovation: s.score_innovation, ai_prompting: s.score_ai_prompting, tech_execution: s.score_tech_execution,
+          innovation: s.score_innovation,
+          tools_tech: s.score_ai_prompting,
+          ui_ux: s.score_tech_execution,
+          production_ready: s.score_presentation,
+          ai_prompting: s.score_ai_prompting,
+          tech_execution: s.score_tech_execution,
           presentation: s.score_presentation,
           total: s.score_innovation + s.score_ai_prompting + s.score_tech_execution + s.score_presentation,
           feedback: includeFeedback ? s.feedback ?? undefined : undefined,

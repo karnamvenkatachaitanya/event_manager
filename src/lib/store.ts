@@ -171,7 +171,16 @@ export const setAnnouncementPublished = (id: string, published: boolean) => call
 export const deleteAnnouncement = (id: string) => call("deleteAnnouncement", { id });
 export const scoreSubmission = (
   submissionId: string,
-  scores: { innovation: number; ai_prompting: number; tech_execution: number; presentation: number; feedback?: string },
+  scores: {
+    innovation: number;
+    tools_tech?: number;
+    ui_ux?: number;
+    production_ready?: number;
+    ai_prompting?: number;
+    tech_execution?: number;
+    presentation?: number;
+    feedback?: string;
+  },
 ) => call("scoreSubmission", { submissionId, ...scores });
 export const issueCertificates = () =>
   call<{ issued: number; skipped: { registration: string; reason: string }[] }>("issueCertificates");
@@ -288,11 +297,11 @@ export function generateCsvData(type: "participants" | "attendance" | "payments"
       "Project Name",
       "Technologies",
       "Status",
-      "Innovation (25)",
-      "AI Prompting (25)",
-      "Tech Execution (25)",
-      "Presentation (25)",
-      "Total Score (100)",
+      "Innovation (10)",
+      "Tools & Tech (20)",
+      "UI & UX (10)",
+      "Production Ready (10)",
+      "Total Score (50)",
       "GitHub Repo",
       "Demo URL",
     ];
@@ -303,9 +312,9 @@ export function generateCsvData(type: "participants" | "attendance" | "payments"
         `"${sub.technologies.join("; ")}"`,
         sub.status.toUpperCase(),
         sub.scores?.innovation ?? "-",
-        sub.scores?.ai_prompting ?? "-",
-        sub.scores?.tech_execution ?? "-",
-        sub.scores?.presentation ?? "-",
+        sub.scores?.tools_tech ?? sub.scores?.ai_prompting ?? "-",
+        sub.scores?.ui_ux ?? sub.scores?.tech_execution ?? "-",
+        sub.scores?.production_ready ?? sub.scores?.presentation ?? "-",
         sub.scores?.total ?? "-",
         sub.github_url || "",
         sub.demo_url || "",

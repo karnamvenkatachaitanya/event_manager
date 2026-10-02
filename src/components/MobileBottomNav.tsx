@@ -35,7 +35,7 @@ export default function MobileBottomNav() {
   const PrimaryIcon = primary.icon;
 
   return (
-    <div className="lg:hidden fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-none">
+    <div className="lg:hidden fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-none print:hidden">
       <nav
         aria-label="Quick navigation"
         className="pointer-events-auto mx-auto max-w-md flex items-center gap-1 p-1.5 rounded-full bg-paper border border-line shadow-[0_2px_4px_rgba(17,17,19,0.05),0_18px_40px_-18px_rgba(17,17,19,0.35)]"
