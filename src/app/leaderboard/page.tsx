@@ -24,9 +24,6 @@ export default function LeaderboardPage() {
     ranks.set(s.id, prev?.scores && prev.scores.total === s.scores.total ? ranks.get(prev.id)! : i + 1);
   });
 
-  const scored = submissions.filter((s) => s.scores);
-  const topThree = scored.slice(0, 3);
-
   return (
     <div className="min-h-screen py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto space-y-8">
@@ -44,59 +41,6 @@ export default function LeaderboardPage() {
             <span>Live Hackathon Standings</span>
           </p>
         </header>
-
-        {/* Podium for Top 3 */}
-        {topThree.length >= 3 && (
-          <section aria-label="Top three teams" className="grid grid-cols-1 md:grid-cols-3 md:items-end">
-            {/* 2nd Place */}
-            <div className="frame bg-paper p-6 flex flex-col justify-end gap-3 order-2 md:order-1 -mt-[2px] md:mt-0 md:min-h-[15rem]">
-              <p className="flex items-baseline justify-between gap-3">
-                <span className="display num text-6xl text-ink">2</span>
-                <span className="cell-label">Runner Up</span>
-              </p>
-              <div>
-                <h2 className="wide font-semibold text-xl text-ink leading-tight">{topThree[1].team_name}</h2>
-                <p className="text-sm text-ink-2 mt-1">{topThree[1].project_name}</p>
-              </div>
-              <p className="pt-3 border-t border-rule">
-                <span className="num text-3xl font-semibold text-ink">{topThree[1].scores?.total}</span>
-                <span className="num text-sm text-ink-2"> / 50</span>
-              </p>
-            </div>
-
-            {/* 1st Place (Center & Taller) */}
-            <div className="plane-sun frame p-6 sm:p-7 flex flex-col justify-end gap-4 order-1 md:order-2 md:-mx-[2px] relative z-10 md:min-h-[21rem]">
-              <p className="flex items-baseline justify-between gap-3">
-                <span className="display num text-8xl">1</span>
-                <span className="cell-label">1st Place Champion</span>
-              </p>
-              <div>
-                <h2 className="wide font-semibold text-2xl leading-tight">{topThree[0].team_name}</h2>
-                <p className="text-sm font-semibold mt-1">{topThree[0].project_name}</p>
-              </div>
-              <p className="pt-3 border-t-2 border-on-accent">
-                <span className="num text-4xl font-semibold">{topThree[0].scores?.total}</span>
-                <span className="num text-sm font-semibold"> / 50</span>
-              </p>
-            </div>
-
-            {/* 3rd Place */}
-            <div className="plane-field frame p-6 flex flex-col justify-end gap-3 order-3 -mt-[2px] md:mt-0 md:min-h-[12rem]">
-              <p className="flex items-baseline justify-between gap-3">
-                <span className="display num text-5xl text-ink">3</span>
-                <span className="cell-label">3rd Place</span>
-              </p>
-              <div>
-                <h2 className="wide font-semibold text-lg text-ink leading-tight">{topThree[2].team_name}</h2>
-                <p className="text-sm text-ink-2 mt-1">{topThree[2].project_name}</p>
-              </div>
-              <p className="pt-3 border-t border-rule">
-                <span className="num text-3xl font-semibold text-ink">{topThree[2].scores?.total}</span>
-                <span className="num text-sm text-ink-2"> / 50</span>
-              </p>
-            </div>
-          </section>
-        )}
 
         {/* Detailed Full Standings Table */}
         <section className="frame bg-paper" aria-labelledby="standings-heading">
